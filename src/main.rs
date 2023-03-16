@@ -83,7 +83,10 @@ impl eframe::App for MyApp {
                 if ui.button("Convert dropped file").clicked() {
 
                     for file in &self.dropped_files {
-                        info = if let Some(path) = &file.path {
+                        //info = file.path.as_ref().unwrap().display().to_string(); //unsafe way of doing it
+                        //&file.path.display().to_string();
+                        
+                         info = if let Some(path) = &file.path {
                             path.display().to_string()
                         } else {
                             panic!("Scheiise");
