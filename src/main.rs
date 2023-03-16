@@ -81,14 +81,24 @@ impl eframe::App for MyApp {
 
                 // Convert droppped file
                 if ui.button("Convert dropped file").clicked() {
+
+                    for file in &self.dropped_files {
+                        info = if let Some(path) = &file.path {
+                            path.display().to_string()
+                        } else {
+                            panic!("Scheiise");
+                        };
+
+                        println!("{:?}", info);
+                        match convert_to_png(info) {
+                            Ok(_) => (),
+                            Err(e) => {
+                                //                            ui.monospace(e.to_string())                      
+                                println!("Error de imagen {:?}", e);
+                                return 
+                            }
+                    }
                     
-                    match convert_to_png(info) {
-                        Ok(_) => (),
-                        Err(e) => {
-                            //                            ui.monospace(e.to_string())                      
-                            println!("Error de imagen {:?}", e);
-                            return 
-                        }
                     };
             }
         }
