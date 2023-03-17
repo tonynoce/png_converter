@@ -27,6 +27,8 @@ struct MyApp {
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let mut error_text = String::new();
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.label("Convert your jpg to png");
             ui.label("You can drop a file too !");
@@ -44,14 +46,22 @@ impl eframe::App for MyApp {
             }
             
             // Convert appears after file is selected
+/*             let error_text = "e".to_string();
+                    egui::Window::new("Error en la conversión")
+                        .resizable(true)
+                        .show(ctx, |ui| {
+                            ui.label(error_text);
+                        }); */
+
             if let Some(picked_path) = &self.picked_path {
                 if ui.button("Convert selected file").clicked() {
+                    println!("s2magen");
                     match convert_to_png(picked_path.trim().to_string()) {
                         Ok(_) => (),
                         Err(e) => {
-                            //                            ui.monospace(e.to_string())                      
-                            println!("Error de imagen {:?}", e);
-                            return 
+                            
+                            println!("smagen");
+
                         }
                     };
                 }
@@ -80,33 +90,40 @@ impl eframe::App for MyApp {
                 });
 
                 // Convert droppped file
+
                 if ui.button("Convert dropped file").clicked() {
 
                     for file in &self.dropped_files {
                         //info = file.path.as_ref().unwrap().display().to_string(); //unsafe way of doing it
                         //&file.path.display().to_string();
                         
-                         info = if let Some(path) = &file.path {
+                        info = if let Some(path) = &file.path {
                             path.display().to_string()
                         } else {
                             panic!("Scheiise");
                         };
 
-                        println!("{:?}", info);
+                        //println!("{:?}", info);
                         match convert_to_png(info) {
                             Ok(_) => (),
                             Err(e) => {
-                                //                            ui.monospace(e.to_string())                      
-                                println!("Error de imagen {:?}", e);
-                                return 
-                            }
-                    }
-                    
+                                //ui.monospace(e.to_string())                      
+                                error_text = e.to_string();
+                                //display_error(ctx, text);
+
+
+                                //println!("Error de imagen {:?}", e);
+
+                                
+                            } 
+                        }
                     };
-            }
+                }
+
         }
 
-        });
+
+    });
 
         
 
@@ -145,7 +162,7 @@ fn preview_files_being_dropped(ctx: &egui::Context) {
             ctx.layer_painter(LayerId::new(Order::Foreground, Id::new("file_drop_target")));
 
         let screen_rect = ctx.screen_rect();
-        painter.rect_filled(screen_rect, 0.0, Color32::from_black_alpha(192));
+        painter.rect_filled(screen_rect, 0.0, Color32::from_black_alpha(100));
         painter.text(
             screen_rect.center(),
             Align2::CENTER_CENTER,
@@ -154,4 +171,14 @@ fn preview_files_being_dropped(ctx: &egui::Context) {
             Color32::WHITE,
         );
     }
+}
+
+fn display_error(ctx: &egui::Context, e:String) -> bool {
+    let error_text = e.to_string();
+    egui::Window::new("Error en la conversión")
+    .show(ctx, |ui| {
+        ui.label(error_text);
+        
+    });
+    true
 }
