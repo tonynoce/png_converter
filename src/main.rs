@@ -15,17 +15,17 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "JPG to PNG",
         options,
-        Box::new(|_cc| Box::new(MyApp::default())),
+        Box::new(|_cc| Box::new(PngApp::default())),
     )
 }
 
 #[derive(Default)]
-struct MyApp {
+struct PngApp {
     dropped_files: Vec<egui::DroppedFile>,
     picked_path: Option<String>,
 }
 
-impl eframe::App for MyApp {
+impl eframe::App for PngApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let mut error_text = String::new();
 
@@ -59,9 +59,19 @@ impl eframe::App for MyApp {
                     match convert_to_png(picked_path.trim().to_string()) {
                         Ok(_) => (),
                         Err(e) => {
-                            
-                            println!("smagen");
+                            println!("smagen error");
 
+                            let error_text = e.to_string();
+
+                            egui::Window::new("Error en la conversión")
+                            .resizable(true)
+                            .show(ctx, |ui| {
+                                ui.label(error_text);
+                                if ui.button("Close").clicked() {
+                                    eprintln!("Pressed Close button");
+                                    _frame.close();
+                                }
+                            });
                         }
                     };
                 }
@@ -173,6 +183,7 @@ fn preview_files_being_dropped(ctx: &egui::Context) {
     }
 }
 
+/* 
 fn display_error(ctx: &egui::Context, e:String) -> bool {
     let error_text = e.to_string();
     egui::Window::new("Error en la conversión")
@@ -181,4 +192,20 @@ fn display_error(ctx: &egui::Context, e:String) -> bool {
         
     });
     true
+}
+*/
+#[derive(Default)]
+struct MyError {
+    show_confirmation_dialog: bool,
+}
+
+impl eframe::App for MyError {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            if ui.button("Close").clicked() {
+                eprintln!("Pressed Close button");
+                frame.close();
+            }
+        });
+    }
 }
