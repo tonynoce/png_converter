@@ -24,7 +24,9 @@ fn main() -> Result<(), eframe::Error> {
 struct PngApp {
     dropped_files: Vec<egui::DroppedFile>,
     picked_path: Option<String>,
+    popup_text: String,
 }
+
 
 impl eframe::App for PngApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -46,45 +48,54 @@ impl eframe::App for PngApp {
                 });
             }
             
-
-            let mut window_text = egui::Window::new("Error en la conversión")
-                .open(&mut false)
-                .default_open(false)
-                .resizable(true)
-                .id(Id::from("window_text"))
-                .show(ctx, |ui| {
-                    ui.label("some text");
-                });
-
+            /*
+            let window_text = egui::Window::new("Error en la conversión")
+            .open(&mut false)
+            .default_open(false)
+            .resizable(true)
+            .id(Id::from("window_text"))
+            .show(ctx, |ui| {
+                ui.label(self.popup_text.to_string());
+            });
+            */
+            
             if let Some(picked_path) = &self.picked_path {
-                let response = ui.button("Convert selected file");
-                let mut error_text = String::new();
+                let button_convert = ui.button("Convert selected file");
+                
                 let popup_id = ui.make_persistent_id("error_window");
                 
                 let below = egui::AboveOrBelow::Below;
                 let mut memory = egui::Memory::default();
-                //let mut open = true;
-                egui::popup::popup_above_or_below_widget(ui, popup_id, &response, below, |ui| {
-                    ui.label("Some more info, or things you can select:");
-                    ui.label(error_text);
+                
+                
+                egui::popup::popup_above_or_below_widget(ui, popup_id, &button_convert, below, |ui| {
+                    ui.label(self.popup_text.to_string());
                 });
                 
-
-                if response.clicked() {
+                /*
+                 */
+                if button_convert.clicked() {
                     println!("s2magen");
 
                     ui.memory_mut(|mem| mem.toggle_popup(popup_id));
+                    egui::Window::new("Conversion Ok")
+                        .open(&mut false)
+                        .show(ctx, |ui|{
+                        ui.label("Se convirtio ok !");
+                    });
                     
                     egui::Memory::open_popup(&mut memory, Id::from("error_window"));
                     match convert_to_png(picked_path.trim().to_string()) {
-                        Ok(_) => (),
+                        Ok(_) => self.popup_text = "Se convirtio ok !".to_string(),
                         Err(e) => {
-                            println!("picked imagen error");
-
+                            println!("picked image error");
                             //let 
-                            error_text = e.to_string();
+                            
                             println!("{}", e);
+                            self.popup_text = e.to_string();
+                            
                             //open = true;
+                            //return error_text.value = e.to_string();
                         }
                     };
                 }
@@ -131,13 +142,9 @@ impl eframe::App for PngApp {
                             Ok(_) => (),
                             Err(e) => {
                                 //ui.monospace(e.to_string())                      
-                                let error_text = e.to_string();
+                                //let error_text = e.to_string();
                                 //display_error(ctx, text);
-
-
                                 println!("Error de imagen {:?}", e);
-
-                                
                             } 
                         }
                     };
@@ -196,25 +203,7 @@ fn preview_files_being_dropped(ctx: &egui::Context) {
     }
 }
 
- 
- /*
- fn display_error(ctx: &egui::Context, e:String) -> egui::Window {
-     let error_text = e.to_string();
-     let error_window =    egui::Window::new("Error en la conversión")
-     .resizable(true)
-     .show(ctx, |ui| {
-         ui.label("error_text");
-         if ui.button("Close").clicked() {
-             eprintln!("Pressed Close button");
-             //open = false
-             //_frame.close();
-            }
-        });
-        error_window
-    }
-*/
-
-
+/*
 #[derive(Default)]
 struct MyError {
     show_confirmation_dialog: bool,
@@ -230,3 +219,4 @@ impl eframe::App for MyError {
         });
     }
 }
+*/

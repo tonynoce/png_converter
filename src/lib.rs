@@ -2,9 +2,7 @@ use crate::image::ImageError;
 use image;
 
 pub fn convert_to_png(path: String) -> Result<(), ImageError> {
-    let img = image::open(&path)?;
-    println!("opened file");
-    
+    let img = image::open(&path)?;  
     let format = image::ImageFormat::Png;
 
     let mid = path.len();
@@ -12,7 +10,5 @@ pub fn convert_to_png(path: String) -> Result<(), ImageError> {
 
     let savename = String::from(path.0.to_string() + "_PNG.png");
     img.save_with_format(savename, format)?;
-    //img.write_to(savename.as_mut_str(), format);
-    println!("saved file");
     Ok(())
 }
